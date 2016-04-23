@@ -164,7 +164,7 @@ void join_ju(t_main *main)
   char *number;
   int size;
 
-  number = my_utoa((uintmax_t)main->elem);
+  number = my_utoa((size_t)main->elem);
   size = ft_strlen(number);
   main->size += size;
   if(main->accurate != -1)
@@ -199,13 +199,13 @@ void join_u(t_main *main)
 }
 
 
-
+//ECOUTE BIEN SI YA PAS DE CONVERTER ON ECRIT LE TRUC NORMAL
 // SDU
 //http://personal.ee.surrey.ac.u           k/Personal/R.Bowden/C/printf.html
 int manage_arg(t_main *main)
 {
   main->i++;
-  if(main->chaine[main->i] == 'd' || main->chaine[main->i] == 'i')
+  if(main->chaine[main->i] == 'd' || main->chaine[main->i] == 'i' || main->chaine[main->i] == 'D')
     {
     long long int a;
     a = (long long int)main->elem;
@@ -256,13 +256,28 @@ int manage_arg(t_main *main)
 
     else if(main->chaine[main->i] == 'o')
     {
-        if(main->dietat == 1)
+      int size;
+      int i;
+
+      i = 0;
+      if(main->dietat == 1)
   	   {
   	      main->print = ft_strjoin(main->print, "0");
   	      main->size++;
 	     }
       base_converter(main, (unsigned long long int)main->elem, 8);
-    }
+      size = ft_strlen(main->print);
+      if(main->accurate > 0)
+	{
+	  while(size < main->accurate)
+	    {
+	      main->print = ft_strjoin("0",main->print); 
+	      i++;
+	      size++;
+	      main->size++;
+	    }
+	}
+   }
   else if(main->chaine[main->i] == 'u')
     {
       if(main->type == 0)
@@ -290,12 +305,10 @@ int manage_arg(t_main *main)
   	   {
           	  if(main->accurate == -1)
           	    main->accurate = ft_strlen((char *)main->elem);
-          	  int i;
           	  char *lp;
           	  
           	  lp = (char *)main->elem;
           	  lp = ft_strsub(lp, 0, main->accurate);
-          	  i = 0;
           	  main->print = ft_strjoin(main->print, &lp[0]);
           	  if((size_t)main->accurate > ft_strlen(lp))
           	    main->size = ft_strlen(lp);
@@ -323,7 +336,9 @@ int manage_arg(t_main *main)
 
       chaine = (wchar_t *)main->elem;
       i=0;
-      while(chaine[i] != '\0')
+
+      //need precision here with var OK PREC pretty easy  ces dla merde sa
+      while(chaine[i] != '\0' && main->size < main->accurate)
       {
         mywchar(main, chaine[i]);
         i++;
@@ -367,6 +382,10 @@ int manage_arg(t_main *main)
     }
   else if(main->chaine[main->i] == 'x')
     {
+
+      int i;
+      int size;
+      i = 0;
       if(main->dietat == 1)
 	{
 	  main->print = ft_strjoin(main->print, "0x");
@@ -374,14 +393,23 @@ int manage_arg(t_main *main)
 	}
       if((unsigned long long int)main->elem != 0)
 	base_converter(main, (unsigned long long int)main->elem, 16);
-      else
-	    {
-	       main->size++;
-	       main->print = ft_strjoin(main->print, "0");
-	     }
+      size = ft_strlen(main->print);
+      if(main->accurate > 0)
+        {
+          while(size < main->accurate)
+            {
+              main->print = ft_strjoin("0",main->print);
+              i++;
+              size++;
+              main->size++;
+            }
+        }
     }
   else if(main->chaine[main->i] == 'X')
     {
+      int i = 0;
+      int size;
+
       if(main->dietat == 1)
 	{
           main->print = ft_strjoin(main->print,"0X");
@@ -389,11 +417,18 @@ int manage_arg(t_main *main)
 	}
       if((unsigned long long int)main->elem != 0)
 	       base_converter_upper(main, (unsigned long long int)main->elem, 16);
-      else
-	{
-	  main->size++;
-          main->print = ft_strjoin(main->print, "0");
+      size = ft_strlen(main->print);
+      if(main->accurate > 0)
+        {
+          while(size < main->accurate)
+            {
+              main->print = ft_strjoin("0",main->print);
+              i++;
+              size++;
+              main->size++;
+            }
         }
+
     }
   else
     main->i--;
